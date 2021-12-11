@@ -8,7 +8,7 @@ namespace Api.Service.Test.Usuario
 {
     public class QuandoForExecutadoDelete : UsuariosTestes
     {
-         private IUserService _userService;
+        private IUserService _userService;
         private Mock<IUserService> _userServiceMock;
 
         [Fact(DisplayName = "É Possivel Executar o Método Delete.")]
@@ -25,6 +25,9 @@ namespace Api.Service.Test.Usuario
              _userServiceMock = new Mock<IUserService>();
             _userServiceMock.Setup(m => m.Delete(It.IsAny<Guid>())).ReturnsAsync(true);
             _userService = _userServiceMock.Object;
+
+            deletado = await _userService.Delete(Guid.NewGuid());
+            Assert.False(deletado);
 
         }
     }
