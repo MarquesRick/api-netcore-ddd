@@ -20,16 +20,35 @@ namespace application
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration, /*for integration.test*/ IWebHostEnvironment environment)
         {
             Configuration = configuration;
+            /*for integration.test*/
+            _environment = environment;
+
         }
 
         public IConfiguration Configuration { get; }
 
+        /*for integration.test*/
+        public IWebHostEnvironment _environment { get; }
+
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            //for integration.test
+            if (_environment.IsEnvironment("Testing"))
+            {
+                //good practice put 'persist' on mysql connection
+                //always create a db for integration
+                Environment.SetEnvironmentVariable("DB_CONNECTION", "Persist Security Info=true;Server=localhost;Port=3306;DataBase=db_api_integration;Uid=root;Pwd=");
+                Environment.SetEnvironmentVariable("DATABASE", "MYSQL");
+                Environment.SetEnvironmentVariable("MIGRATION", "APLICAR");
+                Environment.SetEnvironmentVariable("Audience", "ExemploAudience");
+                Environment.SetEnvironmentVariable("Issuer", "ExemploIssue");
+                Environment.SetEnvironmentVariable("Seconds", "28800");
+            }
+
             services.AddControllers();
 
             ConfigureService.ConfigureDependenciesService(services);
