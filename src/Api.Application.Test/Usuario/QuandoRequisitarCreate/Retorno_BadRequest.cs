@@ -1,3 +1,4 @@
+
 using System;
 using System.Threading.Tasks;
 using Api.Application.Controllers;
@@ -9,7 +10,7 @@ using Xunit;
 
 namespace Api.Application.Test.Usuario.QuandoRequisitarCreate
 {
-    public class Retorno_Created
+    public class Retorno_BadRequest
     {
         private UsersController _controller;
 
@@ -32,6 +33,8 @@ namespace Api.Application.Test.Usuario.QuandoRequisitarCreate
             );
 
             _controller = new UsersController(serviceMock.Object);
+            //Add a error on Model State for badrequest result
+            _controller.ModelState.AddModelError("Name", "É um campo obrigatório");
             
             Mock<IUrlHelper> url = new Mock<IUrlHelper>();
             url.Setup(x => x.Link(It.IsAny<string>(), It.IsAny<object>())).Returns("http://localhost:5000");
@@ -43,14 +46,9 @@ namespace Api.Application.Test.Usuario.QuandoRequisitarCreate
                 Email = email
             };
 
-            //returns 201 status => created
+            //returns 400 status => badrequest
             var result = await _controller.Post(userDtoCreate);
-            Assert.True(result is CreatedResult);
-
-            var resultValue = ((CreatedResult)result).Value as UserDtoCreateResult;
-            Assert.NotNull(resultValue);
-            Assert.Equal(userDtoCreate.Name, resultValue.Name);
-            Assert.Equal(userDtoCreate.Email, resultValue.Email);
+            Assert.True(result is BadRequestObjectResult);
         } 
     }
 }
